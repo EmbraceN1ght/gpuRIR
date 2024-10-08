@@ -13,9 +13,6 @@ gpuRIR.activateMixedPrecision(False)
 
 fs, source_signal = wavfile.read('source_signal_1.wav')
 
-# if len(source_signal.shape) > 1:  # 如果是多通道音频
-#     source_signal = np.mean(source_signal, axis=1)  # 对多个通道求平均值
-
 room_sz = [3,4,2.5]  # Size of the room [m]
 traj_pts = 64  # Number of trajectory points
 pos_traj = np.tile(np.array([0.0,3.0,1.0]), (traj_pts,1))

@@ -12,14 +12,14 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import gpuRIR
 gpuRIR.activateMixedPrecision(False)
 
-# Step 1: Read the audio file
+# Read the audio file
 fs, source_signal = wavfile.read('source_signal_1.wav')
 
 # If the audio is multi-channel, convert it to mono
 if len(source_signal.shape) > 1:
     source_signal = np.mean(source_signal, axis=1)
 
-# Step 2: Define room size, source position, and microphone array
+# Define room size, source position, and microphone array
 room_sz = [3, 4, 2.5]  # Room dimensions [m]
 source_pos = np.array([1.5, 3.0, 1.0])  # Static source position (x, y, z)
 
@@ -29,38 +29,37 @@ pos_rcv = np.array([[1.4, 1, 1.5], [1.6, 1, 1.5]])  # Microphone positions
 orV_rcv = np.array([[-1, 0, 0], [1, 0, 0]])  # Microphone orientation vectors
 mic_pattern = "card"  # Cardioid microphone pattern
 
-# Step 3: Define reverberation time and attenuation parameters
+# Define reverberation time and attenuation parameters
 T60 = 0.6  # Reverberation time (0.6 seconds)
 att_diff = 15.0  # Attenuation at which diffuse model starts (15 dB)
 att_max = 60.0  # Maximum attenuation (60 dB)
 
-# Step 4: Compute reflection coefficients and simulation time
+# Compute reflection coefficients and simulation time
 beta = gpuRIR.beta_SabineEstimation(room_sz, T60)  # Estimate reflection coefficients
 Tdiff = gpuRIR.att2t_SabineEstimator(att_diff, T60)  # Diffuse model activation time
 Tmax = gpuRIR.att2t_SabineEstimator(att_max, T60)  # Maximum simulation time
 nb_img = gpuRIR.t2n(Tdiff, room_sz)  # Compute number of image sources
 
-# Step 5: Generate Room Impulse Response (RIR)
+# Generate Room Impulse Response (RIR)
 RIRs = gpuRIR.simulateRIR(
     room_sz, beta, np.array([source_pos]), pos_rcv, nb_img, Tmax, fs,
     Tdiff=Tdiff, orV_rcv=orV_rcv, mic_pattern=mic_pattern
 )
 
-# Step 6: Convolve the source signal with RIR to generate multi-channel microphone signals
+# Convolve the source signal with RIR to generate multi-channel microphone signals
 filtered_signal = gpuRIR.simulateTrajectory(source_signal, RIRs)
 
-# Step 7: Save the simulation results
+# Save the simulation results
 wavfile.write('filtered_signal_static.wav', fs, filtered_signal)
 
-# Step 8: Plot the results
+# Plot the results
 plt.plot(filtered_signal)
 plt.title("Simulated Microphone Signals for Static Source")
 plt.xlabel("Samples")
 plt.ylabel("Amplitude")
 plt.show()
 
-# Step 9: Plot the room, microphone array, and source in 3D
-
+# Plot the room, microphone array, and source in 3D
 def plot_room(ax, room_sz):
     """ Plot the room boundaries """
     x, y, z = room_sz
