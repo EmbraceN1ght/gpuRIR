@@ -13,8 +13,8 @@ gpuRIR.activateMixedPrecision(False)
 
 fs, source_signal = wavfile.read('source_signal_1.wav')
 
-# if len(source_signal.shape) > 1:  # 如果是多通道音频
-#     source_signal = np.mean(source_signal, axis=1)  # 对多个通道求平均值
+if len(source_signal.shape) > 1:  # 如果是多通道音频
+    source_signal = np.mean(source_signal, axis=1)  # 对多个通道求平均值
 
 room_sz = [3,4,2.5]  # Size of the room [m]
 traj_pts = 64  # Number of trajectory points
@@ -37,9 +37,9 @@ filtered_signal = gpuRIR.simulateTrajectory(source_signal, RIRs)
 
 
 
-wavfile.write('filtered_signal.wav', fs, filtered_signal)
+wavfile.write('filtered_signal_moving.wav', fs, filtered_signal)
 plt.plot(filtered_signal)
-plt.title('Stereo Recording of Microphone Array')
-plt.xlabel('Sampling number')
+plt.title('Simulated Microphone Signals for Moving Source')
+plt.xlabel('Samples')
 plt.ylabel('Amplitude')
 plt.show()
